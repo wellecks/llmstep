@@ -1,3 +1,5 @@
+/- Examples -/
+
 import LLMstep
 
 import Mathlib.Data.Real.Basic
@@ -6,11 +8,25 @@ import Mathlib.Topology.Instances.Real
 import Mathlib.Data.Nat.Prime
 import Mathlib.Algebra.BigOperators.Order
 
+/-
+First, here is a trivial example. 
+We would start this proof using:
 
-/- Examples -/
+  example : 2 = 2 := by
+   llmstep ""
+
+then choose a suggestion. Clicking the suggestion
+would yield the proof below:
+-/
 example : 2 = 2 := by
   rfl -- llmstep "" 
 
+/-
+As shown in the rest of the examples below, we can use the 
+llmstep tactic again on later steps and with other prefixes.
+Naturally, steps that use llmstep can be interleaved with steps 
+that do not use llmstep.
+-/
 
 example (f : ℕ → ℕ) : Monotone f → ∀ n, f n ≤ f (n + 1) := by
   intro h n -- llmstep "" 
@@ -45,3 +61,9 @@ example {X Y : Type _} [MetricSpace X] [MetricSpace Y] {f : X → Y} (hf : Conti
     exact hf.comp continuous_fst -- llmstep "" 
     exact hf.comp continuous_snd -- llmstep "" 
 
+
+-- Example from ProofNet (Rudin)
+theorem exercise_1_18b : ¬ ∀ (x : ℝ), ∃ (y : ℝ), y ≠ 0 ∧ x * y = 0 := by
+  push_neg -- llmstep "" 
+  use 1 -- llmstep "" 
+  simp [ne_of_gt] -- llmstep "" 
