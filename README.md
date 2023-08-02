@@ -39,16 +39,26 @@ python python/server.py
 
 Open `LLMstep/Examples.lean` in VS Code and try out `llmstep`. 
 
+
+
+
 ## Implementation
 `llmstep` has three parts:
-1. a Lean tactic
-2. a language model
-3. a Python server 
+1. a [Lean tactic](./LLMstep/LLMstep.lean)
+2. a [language model](https://huggingface.co/wellecks/llmstep-mathlib4-pythia2.8b)
+3. a [Python server](./python/server.py)
    
-The Lean tactic calls a Python script, which sends a request to the server. \
+The Lean tactic calls a [Python script](./python/suggest.py), which sends a request to the server. \
 The server calls the language model and returns the generated suggestions. \
 The suggestions are displayed by the tactic in VS Code.
 
+## Fast suggestions (optional)
+
+`llmstep` supports faster suggestions via [vLLM](https://vllm.readthedocs.io/en/latest/). First, [install vLLM](https://vllm.readthedocs.io/en/latest/getting_started/installation.html) (requires a supported GPU). Then start `llmstep`'s server using:
+```
+python python/server_vllm.py
+```
+Fast suggestions are optional; you can use `python/server.py` to run `llmstep` without vLLM.
 
 ## Language model
 By default, `llmstep` uses a Pythia 2.8b language model fine-tuned on [LeanDojo Benchmark 4](https://zenodo.org/record/8040110):
@@ -76,7 +86,8 @@ We recommend using a fine-tuned model, though in principle fine-tuning is not st
 
 #### Speed
 Starting the server downloads the default language model, and loads the model. As a result, you will likely experience a delay the first time `llmstep` is run.
-Roughly speaking, `llmstep` can run on a typical MacBook Pro with the default model, and runs faster when `server.py` is on a machine with a GPU. 
+Roughly speaking, when `server.py` is run on a typical MacBook Pro, `llmstep` provides suggestions in a few seconds, with a GPU suggestions take ~1 second, and with vLLM suggestions take less than 1 second.
+Actual suggestion latency is variable and depends on multiple factors.
 
 
 ## Additional Notes
