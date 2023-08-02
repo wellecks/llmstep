@@ -23,7 +23,8 @@ example (f : ℕ → ℕ) : Monotone f → ∀ n, f n ≤ f (n + 1) := by
   exact h (Nat.le_succ _) -- llmstep "exact" 
 ```
 
-`llmstep` checks the language model suggestions in Lean, and highlights those that are valid and/or close the proof.\
+`llmstep` checks the language model suggestions in Lean, and highlights those that are valid and/or close the proof. 
+
 By default, `llmstep` uses a language model finetuned on Mathlib4 extracted with [LeanDojo](https://zenodo.org/record/8040110), and
 [supports other LMs](#language-model).
 
