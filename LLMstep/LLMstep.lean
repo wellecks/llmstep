@@ -45,10 +45,14 @@ export default function(props) {
   {className: 'ml1'}, 
   e('ul', {className: 'font-code pre-wrap'}, [
     'Try this: ',
-    ...(props.suggestions.map(suggestion => 
+    ...(props.suggestions.map((suggestion, i) => 
         e('li', {onClick: () => onClick(suggestion), 
-        className: 'link pointer dim', title: 'Apply suggestion'}, 
-        suggestion
+          className: 
+            props.checks[i] === 'ProofDone' ? 'link pointer dim green' : 
+            props.checks[i] === 'Valid' ? 'link pointer dim blue' : 
+            'link pointer dim', 
+          title: 'Apply suggestion'}, 
+          props.checks[i] === 'ProofDone' ? '🎉 ' + suggestion : suggestion
       )
     )),
     props.info
@@ -56,21 +60,68 @@ export default function(props) {
 }"
 
 
+inductive CheckResult : Type
+  | ProofDone
+  | Valid
+  | Invalid
+  deriving ToJson
+
+/- Check whether the suggestion `s` completes the proof, is valid (does
+not result in an error message), or is invalid. -/
+def checkSuggestion (s: String) : Lean.Elab.Tactic.TacticM CheckResult := do
+  withoutModifyingState do
+  try
+    match Parser.runParserCategory (← getEnv) `tactic s with
+      | Except.ok stx => 
+        try
+          _ ← Lean.Elab.Tactic.evalTactic stx
+          let goals ← Lean.Elab.Tactic.getUnsolvedGoals
+          if (← getThe Core.State).messages.hasErrors then
+            pure CheckResult.Invalid
+          else if goals.isEmpty then 
+            pure CheckResult.ProofDone
+          else
+            pure CheckResult.Valid
+        catch _ => 
+          pure CheckResult.Invalid
+      | Except.error _ => 
+        pure CheckResult.Invalid
+    catch _ => pure CheckResult.Invalid
+
+
 /- Adds multiple suggestions to the Lean InfoView. 
    Code based on `Std.Tactic.addSuggestion`. -/
 def addSuggestions (tacRef : Syntax) (pfxRef: Syntax) (suggestions: List String)
     (origSpan? : Option Syntax := none)
-    (extraMsg : String := "") : MetaM Unit := do
+    (extraMsg : String := "") : Lean.Elab.Tactic.TacticM Unit := do
   if let some tacticRange := (origSpan?.getD tacRef).getRange? then
     if let some argRange := (origSpan?.getD pfxRef).getRange? then
       let map ← getFileMap
       let start := findLineStart map.source tacticRange.start
       let body := map.source.findAux (· ≠ ' ') tacticRange.start start
+
+      let checks ← suggestions.mapM checkSuggestion
       let texts := suggestions.map fun text => (
-        Std.Format.prettyExtra text 
-        (indent := (body - start).1) 
-        (column := (tacticRange.start - start).1)
-      )
+        (Std.Format.prettyExtra (text.stripSuffix "\n")
+         (indent := (body - start).1) 
+         (column := (tacticRange.start - start).1)
+      ))
+
+      let dones := ((texts.zip checks).filter fun (_, check) => match check with
+        | CheckResult.ProofDone => true
+        | _ => false)
+
+      let valids := ((texts.zip checks).filter fun (_, check) => match check with
+        | CheckResult.Valid => true
+        | _ => false)
+
+      let invalids := ((texts.zip checks).filter fun (_, check) => match check with
+        | CheckResult.Invalid => true
+        | _ => False)
+
+      let checks := (dones ++ valids ++ invalids).map fun (_, check) => check
+      let texts := (dones ++ valids ++ invalids).map fun (text, _) => text
+
       let start := (tacRef.getRange?.getD tacticRange).start
       let stop := (pfxRef.getRange?.getD argRange).stop
       let stxRange :=
@@ -83,6 +134,7 @@ def addSuggestions (tacRef : Syntax) (pfxRef: Syntax) (suggestions: List String)
       let json := Json.mkObj [
         ("tactic", tactic),
         ("suggestions", toJson texts), 
+        ("checks", toJson checks),
         ("range", toJson full_range), 
         ("info", extraMsg)
       ]

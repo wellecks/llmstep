@@ -1,16 +1,8 @@
 # `llmstep`: [L]LM proofstep suggestions in Lean
-
 `llmstep` is a Lean 4 tactic for suggesting proof steps using a language model:
-```lean
-example : 2 = 2 := by
-  llmstep ""
 
-==> Lean Infoview
-  Try This: 
-    * rfl
-    * rfl
-    * rfl
-```
+<img src="./llmstep.gif" width="350"/>
+
 Calling `llmstep "prefix"` gives suggestions that start with `prefix`:
 ```lean
 example (f : ℕ → ℕ) : Monotone f → ∀ n, f n ≤ f (n + 1) := by
@@ -34,9 +26,7 @@ example (f : ℕ → ℕ) : Monotone f → ∀ n, f n ≤ f (n + 1) := by
 By default, `llmstep` uses a language model finetuned on Mathlib4 extracted with [LeanDojo](https://zenodo.org/record/8040110), and
 [supports other LMs](#language-model).
 
-#### Motivation
-`llmstep` is created for an IJCAI-2023 tutorial on neural theorem proving. \
-It aims to provide a minimal LM-based suggestion example built with open-source components. 
+
 
 ## Quick start
 
@@ -96,6 +86,10 @@ Roughly speaking, `llmstep` can run on a typical MacBook Pro with the default mo
 * Fine-tuning data for the default model is from the amazing [LeanDojo](https://leandojo.org/). 
 * The fine-tuning code is based on the script from [Stanford Alpaca](https://github.com/tatsu-lab/stanford_alpaca).
 * The tactic implementation adopts ideas and code from Mathlib4's `Polyrith` and `Std.Tactic.TryThis`. 
+
+#### History
+`llmstep` was initially created for an IJCAI-2023 tutorial on neural theorem proving. \
+It aims to provide LM-based suggestions built with open-source components. 
 
 #### Citation
 
