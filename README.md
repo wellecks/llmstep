@@ -109,7 +109,7 @@ It aims to provide LM-based suggestions built with open-source components.
 If you find this repository useful in your work, please cite:
 ```
 @misc{llmstep,
-  author = {Sean Welleck},
+  author = {Welleck, Sean and Saha, Rahul},
   title = {llmstep: LLM proofstep suggestions in Lean},
   year = {2023},
   publisher = {GitHub},
