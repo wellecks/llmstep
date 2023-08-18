@@ -6,7 +6,7 @@ import argparse
 import os
 import time
 
-EOS = "[EOS]"
+EOS = "<|endoftext|>"
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
