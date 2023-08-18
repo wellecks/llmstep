@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument(
         '--model_path', 
         type=str, 
-        default='/home/zhangir/projects/llama.cpp/models/ggml-open-llama-3b-q4_0.bin'
+        help="Path to a llama.cpp model binary"
         )
 args = parser.parse_args()
 
