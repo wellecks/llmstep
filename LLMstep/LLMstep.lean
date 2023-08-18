@@ -3,7 +3,7 @@
 Examples:
  llmstep ""
  llmstep "have"
- llmstep "apply Continuous" 
+ llmstep "apply Continuous"
 
 Author: Sean Welleck
 -/
@@ -11,18 +11,18 @@ import Mathlib.Tactic
 
 open Lean
 
-/- Calls a `suggest.py` python script with the given `args`. -/
-def runSuggest (args : Array String) : IO String := do
+/- Calls a `suggest.py` python script with the given prefix and pretty-printed goal. -/
+def runSuggest (pre goal : String) : IO (List String) := do
   let cwd ← IO.currentDir
   let path := cwd / "python" / "suggest.py"
   unless ← path.pathExists do
     dbg_trace f!"{path}"
     throw <| IO.userError "could not find python script suggest.py"
-  let s ← IO.Process.run { cmd := "python3", args := #[path.toString] ++ args }
-  return s
+  let s ← IO.Process.run { cmd := "python3", args := #[path.toString, goal, pre] }
+  return s.splitOn "[SUGGESTION]"
 
-/- Display clickable suggestions in the VSCode Lean Infoview. 
-    When a suggestion is clicked, this widget replaces the `llmstep` call 
+/- Display clickable suggestions in the VSCode Lean Infoview.
+    When a suggestion is clicked, this widget replaces the `llmstep` call
     with the suggestion, and saves the call in an adjacent comment.
     Code based on `Std.Tactic.TryThis.tryThisWidget`. -/
 @[widget] def llmstepTryThisWidget : Widget.UserWidgetDefinition where
@@ -35,23 +35,23 @@ export default function(props) {
   const editorConnection = React.useContext(EditorContext)
   function onClick(suggestion) {
     editorConnection.api.applyEdit({
-      changes: { [props.pos.uri]: [{ range: 
-        props.range, 
+      changes: { [props.pos.uri]: [{ range:
+        props.range,
         newText: suggestion + ' -- ' + props.tactic
         }] }
     })
   }
-  return e('div', 
-  {className: 'ml1'}, 
+  return e('div',
+  {className: 'ml1'},
   e('ul', {className: 'font-code pre-wrap'}, [
     'Try this: ',
-    ...(props.suggestions.map((suggestion, i) => 
-        e('li', {onClick: () => onClick(suggestion), 
-          className: 
-            props.checks[i] === 'ProofDone' ? 'link pointer dim green' : 
-            props.checks[i] === 'Valid' ? 'link pointer dim blue' : 
-            'link pointer dim', 
-          title: 'Apply suggestion'}, 
+    ...(props.suggestions.map((suggestion, i) =>
+        e('li', {onClick: () => onClick(suggestion),
+          className:
+            props.checks[i] === 'ProofDone' ? 'link pointer dim green' :
+            props.checks[i] === 'Valid' ? 'link pointer dim blue' :
+            'link pointer dim',
+          title: 'Apply suggestion'},
           props.checks[i] === 'ProofDone' ? '🎉 ' + suggestion : suggestion
       )
     )),
@@ -72,24 +72,24 @@ def checkSuggestion (s: String) : Lean.Elab.Tactic.TacticM CheckResult := do
   withoutModifyingState do
   try
     match Parser.runParserCategory (← getEnv) `tactic s with
-      | Except.ok stx => 
+      | Except.ok stx =>
         try
           _ ← Lean.Elab.Tactic.evalTactic stx
           let goals ← Lean.Elab.Tactic.getUnsolvedGoals
           if (← getThe Core.State).messages.hasErrors then
             pure CheckResult.Invalid
-          else if goals.isEmpty then 
+          else if goals.isEmpty then
             pure CheckResult.ProofDone
           else
             pure CheckResult.Valid
-        catch _ => 
+        catch _ =>
           pure CheckResult.Invalid
-      | Except.error _ => 
+      | Except.error _ =>
         pure CheckResult.Invalid
     catch _ => pure CheckResult.Invalid
 
 
-/- Adds multiple suggestions to the Lean InfoView. 
+/- Adds multiple suggestions to the Lean InfoView.
    Code based on `Std.Tactic.addSuggestion`. -/
 def addSuggestions (tacRef : Syntax) (pfxRef: Syntax) (suggestions: List String)
     (origSpan? : Option Syntax := none)
@@ -103,7 +103,7 @@ def addSuggestions (tacRef : Syntax) (pfxRef: Syntax) (suggestions: List String)
       let checks ← suggestions.mapM checkSuggestion
       let texts := suggestions.map fun text => (
         (Std.Format.prettyExtra (text.stripSuffix "\n")
-         (indent := (body - start).1) 
+         (indent := (body - start).1)
          (column := (tacticRange.start - start).1)
       ))
 
@@ -127,19 +127,27 @@ def addSuggestions (tacRef : Syntax) (pfxRef: Syntax) (suggestions: List String)
       let stxRange :=
       { start := map.lineStart (map.toPosition start).line
         stop := map.lineStart ((map.toPosition stop).line + 1) }
-      let full_range : String.Range := 
+      let full_range : String.Range :=
       { start := tacticRange.start, stop := argRange.stop }
       let full_range := map.utf8RangeToLspRange full_range
       let tactic := Std.Format.prettyExtra f!"{tacRef.prettyPrint}{pfxRef.prettyPrint}"
       let json := Json.mkObj [
         ("tactic", tactic),
-        ("suggestions", toJson texts), 
+        ("suggestions", toJson texts),
         ("checks", toJson checks),
-        ("range", toJson full_range), 
+        ("range", toJson full_range),
         ("info", extraMsg)
       ]
       Widget.saveWidgetInfo ``llmstepTryThisWidget json (.ofRange stxRange)
 
+/--
+Call the LLM on a goal, asking for suggestions beginning with a prefix.
+-/
+def llmStep (pre : String) (g : MVarId) : MetaM (List String) := do
+  let pp := toString (← Meta.ppGoal g)
+  runSuggest pre pp
+
+open Lean Elab Tactic
 
 /- `llmstep` tactic.
    Examples:
@@ -148,11 +156,6 @@ def addSuggestions (tacRef : Syntax) (pfxRef: Syntax) (suggestions: List String)
     llmstep "apply Continuous" -/
 syntax "llmstep" str: tactic
 elab_rules : tactic
-  | `(tactic | llmstep%$tac $pfx:str) =>
-    Lean.Elab.Tactic.withMainContext do
-      let goal ← Lean.Elab.Tactic.getMainGoal
-      let ppgoal ← Lean.Meta.ppGoal goal
-      let ppgoalstr := toString ppgoal
-      let suggest ← runSuggest #[ppgoalstr, pfx.getString]
-      addSuggestions tac pfx $ suggest.splitOn "[SUGGESTION]"
-  
+  | `(tactic | llmstep%$tac $pfx:str) => do
+    addSuggestions tac pfx (← liftMetaMAtMain (llmStep pfx.getString))
+
