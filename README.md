@@ -98,7 +98,8 @@ Actual suggestion latency is variable and depends on multiple factors.
 * The `llmstep` tactic is inspired by [`gpt-f`](https://github.com/jesse-michael-han/lean-gptf). 
 * Fine-tuning data for the default model is from the amazing [LeanDojo](https://leandojo.org/). 
 * The fine-tuning code is based on the script from [Stanford Alpaca](https://github.com/tatsu-lab/stanford_alpaca).
-* The tactic implementation adopts ideas and code from Mathlib4's `Polyrith` and `Std.Tactic.TryThis`. 
+* The tactic implementation adopts ideas and code from Mathlib4's `Polyrith` and `Std.Tactic.TryThis`.
+* Thank you to Mario Carneiro for reviewing the tactic implementation.
 
 #### History
 `llmstep` was initially created for an IJCAI-2023 tutorial on neural theorem proving. \
