@@ -7,19 +7,22 @@ Examples:
 
 Author: Sean Welleck
 -/
-import Mathlib.Tactic
+import Lean.Widget.UserWidget
+import Std.Lean.Position
+import Std.Lean.Format
+import Std.Data.String.Basic
 
 open Lean
 
-/- Calls a `suggest.py` python script with the given `args`. -/
-def runSuggest (args : Array String) : IO String := do
+/- Calls a `suggest.py` python script with the given prefix and pretty-printed goal. -/
+def runSuggest (pre goal : String) : IO (List String) := do
   let cwd ← IO.currentDir
   let path := cwd / "python" / "suggest.py"
   unless ← path.pathExists do
     dbg_trace f!"{path}"
     throw <| IO.userError "could not find python script suggest.py"
-  let s ← IO.Process.run { cmd := "python3", args := #[path.toString] ++ args }
-  return s
+  let s ← IO.Process.run { cmd := "python3", args := #[path.toString, goal, pre] }
+  return s.splitOn "[SUGGESTION]"
 
 /- Display clickable suggestions in the VSCode Lean Infoview.
     When a suggestion is clicked, this widget replaces the `llmstep` call
@@ -127,6 +130,14 @@ def addSuggestions (tacRef : Syntax) (pfxRef: Syntax) (suggestions: List String)
       ]
       Widget.saveWidgetInfo ``llmstepTryThisWidget json (.ofRange stxRange)
 
+/--
+Call the LLM on a goal, asking for suggestions beginning with a prefix.
+-/
+def llmStep (pre : String) (g : MVarId) : MetaM (List String) := do
+  let pp := toString (← Meta.ppGoal g)
+  runSuggest pre pp
+
+open Lean Elab Tactic
 
 /- `llmstep` tactic.
    Examples:
@@ -135,11 +146,6 @@ def addSuggestions (tacRef : Syntax) (pfxRef: Syntax) (suggestions: List String)
     llmstep "apply Continuous" -/
 syntax "llmstep" str: tactic
 elab_rules : tactic
-  | `(tactic | llmstep%$tac $pfx:str) =>
-    Lean.Elab.Tactic.withMainContext do
-      let goal ← Lean.Elab.Tactic.getMainGoal
-      let ppgoal ← Lean.Meta.ppGoal goal
-      let ppgoalstr := toString ppgoal
-      let suggest ← runSuggest #[ppgoalstr, pfx.getString]
-      addSuggestions tac pfx $ suggest.splitOn "[SUGGESTION]"
+  | `(tactic | llmstep%$tac $pfx:str) => do
+    addSuggestions tac pfx (← liftMetaMAtMain (llmStep pfx.getString))
 
