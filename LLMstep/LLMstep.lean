@@ -7,7 +7,10 @@ Examples:
 
 Author: Sean Welleck
 -/
-import Mathlib.Tactic
+import Lean.Widget.UserWidget
+import Std.Lean.Position
+import Std.Lean.Format
+import Std.Data.String.Basic
 
 open Lean
 
