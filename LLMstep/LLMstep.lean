@@ -40,7 +40,7 @@ export default function(props) {
     editorConnection.api.applyEdit({
       changes: { [props.pos.uri]: [{ range:
         props.range,
-        newText: suggestion + ' -- ' + props.tactic
+        newText: suggestion[0] + ' -- ' + props.tactic
         }] }
     })
   }
@@ -51,11 +51,11 @@ export default function(props) {
     ...(props.suggestions.map((suggestion, i) =>
         e('li', {onClick: () => onClick(suggestion),
           className:
-            props.checks[i] === 'ProofDone' ? 'link pointer dim green' :
-            props.checks[i] === 'Valid' ? 'link pointer dim blue' :
+            suggestion[1] === 'ProofDone' ? 'link pointer dim green' :
+            suggestion[1] === 'Valid' ? 'link pointer dim blue' :
             'link pointer dim',
           title: 'Apply suggestion'},
-          props.checks[i] === 'ProofDone' ? '🎉 ' + suggestion : suggestion
+          suggestion[1] === 'ProofDone' ? '🎉 ' + suggestion[0] : suggestion[0]
       )
     )),
     props.info
@@ -67,7 +67,7 @@ inductive CheckResult : Type
   | ProofDone
   | Valid
   | Invalid
-  deriving ToJson
+  deriving ToJson, Ord
 
 /- Check whether the suggestion `s` completes the proof, is valid (does
 not result in an error message), or is invalid. -/
@@ -110,20 +110,8 @@ def addSuggestions (tacRef : Syntax) (pfxRef: Syntax) (suggestions: List String)
          (column := (tacticRange.start - start).1)
       ))
 
-      let dones := ((texts.zip checks).filter fun (_, check) => match check with
-        | CheckResult.ProofDone => true
-        | _ => false)
-
-      let valids := ((texts.zip checks).filter fun (_, check) => match check with
-        | CheckResult.Valid => true
-        | _ => false)
-
-      let invalids := ((texts.zip checks).filter fun (_, check) => match check with
-        | CheckResult.Invalid => true
-        | _ => False)
-
-      let checks := (dones ++ valids ++ invalids).map fun (_, check) => check
-      let texts := (dones ++ valids ++ invalids).map fun (text, _) => text
+      let textsAndChecks := texts.zip checks |>.toArray |>.qsort
+        fun a b => compare a.2 b.2 = Ordering.lt
 
       let start := (tacRef.getRange?.getD tacticRange).start
       let stop := (pfxRef.getRange?.getD argRange).stop
@@ -136,8 +124,7 @@ def addSuggestions (tacRef : Syntax) (pfxRef: Syntax) (suggestions: List String)
       let tactic := Std.Format.prettyExtra f!"{tacRef.prettyPrint}{pfxRef.prettyPrint}"
       let json := Json.mkObj [
         ("tactic", tactic),
-        ("suggestions", toJson texts),
-        ("checks", toJson checks),
+        ("suggestions", toJson textsAndChecks),
         ("range", toJson full_range),
         ("info", extraMsg)
       ]
