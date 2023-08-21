@@ -93,7 +93,7 @@ In the following step, you will quantize your model to a reduced precision forma
 ```
 Then, you may start `server_ggml.py` as follows
 ```bash
-python server_ggml.py --model_path $PATH_TO_QUANTIZED
+python3 python/server_ggml.py --model_path $PATH_TO_QUANTIZED
 ```
 Once the server is running, use `llmstep` as you normally would. 
 
