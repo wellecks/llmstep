@@ -4,10 +4,12 @@ import json
 import sys
 import os
 
+HOST = os.environ.get('LLMSTEP_HOST', 'localhost')
 PORT = os.environ.get('LLMSTEP_PORT', 5000)
 
+
 def suggest(tactic_state, prefix):
-    conn = http.client.HTTPConnection("localhost", PORT)
+    conn = http.client.HTTPConnection(HOST, port=PORT)
     headers = {'Content-type': 'application/json'}
     body = json.dumps({"tactic_state": tactic_state, "prefix": prefix})
     conn.request("POST", "/", body, headers)
