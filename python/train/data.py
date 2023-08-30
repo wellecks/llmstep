@@ -94,7 +94,7 @@ def proofstep(data_dir):
 
 
 def main(args):
-    proofstep(args.datadir)
+    proofstep(args.data_dir)
 
 
 def setup(args):
