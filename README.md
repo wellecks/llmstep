@@ -20,10 +20,10 @@ Clicking a suggestion places it in the proof:
 ```lean
 example (f : ℕ → ℕ) : Monotone f → ∀ n, f n ≤ f (n + 1) := by
   intro h n
-  exact h (Nat.le_succ _) -- llmstep "exact" 
+  exact h (Nat.le_succ _) -- llmstep "exact"
 ```
 
-`llmstep` checks the language model suggestions in Lean, and highlights those that are valid and/or close the proof. 
+`llmstep` checks the language model suggestions in Lean, and highlights those that are valid and/or close the proof.
 
 By default, `llmstep` uses a language model finetuned on Mathlib4 extracted with [LeanDojo](https://zenodo.org/record/8040110), and
 [supports other LMs](#language-model).
@@ -39,7 +39,7 @@ Then start the server:
 python python/server.py
 ```
 
-Open `LLMstep/Examples.lean` in VS Code and try out `llmstep`. 
+Open `LLMstep/Examples.lean` in VS Code and try out `llmstep`.
 
 
 
@@ -49,7 +49,7 @@ Open `LLMstep/Examples.lean` in VS Code and try out `llmstep`.
 1. a [Lean tactic](./LLMstep/LLMstep.lean)
 2. a [language model](https://huggingface.co/wellecks/llmstep-mathlib4-pythia2.8b)
 3. a [Python server](./python/server.py)
-   
+
 The Lean tactic calls a [Python script](./python/suggest.py), which sends a request to the server. \
 The server calls the language model and returns the generated suggestions. \
 The suggestions are displayed by the tactic in VS Code.
@@ -61,6 +61,18 @@ The suggestions are displayed by the tactic in VS Code.
 python python/server_vllm.py
 ```
 Fast suggestions are optional; you can use `python/server.py` to run `llmstep` without vLLM.
+
+## Google Colab (optional)
+
+If you want to take advantage of Google Colab's free GPU to run a server, follow these instructions:
+
+1. Run all the cells in (this colab notebook)[https://colab.research.google.com/drive/1c83425Ewbd0pNhNXAMHd9Ne7MVrW6Taj?authuser=1#scrollTo=sXc849NMr4Ks] to start your server.
+
+2. In your local environment, set the environment variable `LLMSTEP_HOST` equal to the url printed out in this notebook (for example, `https://04fa-34-125-110-83.ngrok.io/`)
+
+3. In your local environment, set the environment variable `COLAB=COLAB`. If you don't intend to use colab, don't set it to anything.
+
+4. Use LLMSTEP like you usually would.
 
 ## Language model
 By default, `llmstep` uses a Pythia 2.8b language model fine-tuned on [LeanDojo Benchmark 4](https://zenodo.org/record/8040110):
@@ -95,15 +107,15 @@ Actual suggestion latency is variable and depends on multiple factors.
 ## Additional Notes
 
 #### Acknowledgements
-* The `llmstep` tactic is inspired by [`gpt-f`](https://github.com/jesse-michael-han/lean-gptf). 
-* Fine-tuning data for the default model is from the amazing [LeanDojo](https://leandojo.org/). 
+* The `llmstep` tactic is inspired by [`gpt-f`](https://github.com/jesse-michael-han/lean-gptf).
+* Fine-tuning data for the default model is from the amazing [LeanDojo](https://leandojo.org/).
 * The fine-tuning code is based on the script from [Stanford Alpaca](https://github.com/tatsu-lab/stanford_alpaca).
 * The tactic implementation adopts ideas and code from Mathlib4's `Polyrith` and `Std.Tactic.TryThis`.
 * Thank you to Mario Carneiro for reviewing the tactic implementation.
 
 #### History
 `llmstep` was initially created for an IJCAI-2023 tutorial on neural theorem proving. \
-It aims to provide LM-based suggestions built with open-source components. 
+It aims to provide LM-based suggestions built with open-source components.
 
 #### Citation
 
