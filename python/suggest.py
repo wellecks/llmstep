@@ -3,10 +3,11 @@ import http.client
 import json
 import sys
 import os
+import requests
 
 HOST = os.environ.get('LLMSTEP_HOST', 'localhost')
-PORT = os.environ.get('LLMSTEP_PORT', 5000)
-
+PORT = os.environ.get('LLMSTEP_PORT', 6000)
+COLAB = os.environ.get('COLAB', '')
 
 def suggest(tactic_state, prefix):
     conn = http.client.HTTPConnection(HOST, port=PORT)
@@ -19,5 +20,14 @@ def suggest(tactic_state, prefix):
     print('[SUGGESTION]'.join(data_dict['suggestions']))
     conn.close()
 
+def suggest_colab(tactic_state, prefix):
+  data = {'tactic_state': tactic_state, 'prefix': prefix}
+  response = json.loads(requests.post(HOST, json=data).content)
+  print('[SUGGESTION]'.join(response['suggestions']))
+
+
 if __name__ == "__main__":
-    suggest(sys.argv[1], sys.argv[2])
+    if COLAB:
+      suggest_colab(sys.argv[1], sys.argv[2])
+    else:
+      suggest(sys.argv[1], sys.argv[2])
