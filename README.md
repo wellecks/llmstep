@@ -80,10 +80,10 @@ To set environment variables in VS Code, go to:
 
 - Settings (`Command` + `,` on Mac)
 - Extensions -> Lean 4
-- Add the environment variables to `Server Env`. For example:\
+- Add the environment variables to `Server Env`. For example:
 <img src="./docs/vscode_env1.png" width="400"/>
 
-- Then restart the Lean Server (`Command` + `t`, then type `> Lean 4: Restart Server`):\
+- Then restart the Lean Server (`Command` + `t`, then type `> Lean 4: Restart Server`):
 <img src="./docs/vscode_env2.png" width="400"/>
 
 
