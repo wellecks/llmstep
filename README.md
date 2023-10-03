@@ -64,15 +64,29 @@ Fast suggestions are optional; you can use `python/server.py` to run `llmstep` w
 
 ## Google Colab (optional)
 
-If you want to take advantage of Google Colab's free GPU to run a server, follow these instructions:
+To use Google Colab's free GPU to run a server, follow these instructions:
 
-1. Run all the cells in (this colab notebook)[https://colab.research.google.com/drive/1c83425Ewbd0pNhNXAMHd9Ne7MVrW6Taj?authuser=1#scrollTo=sXc849NMr4Ks] to start your server.
+1. Open and run this notebook to start a server: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/wellecks/llmstep/blob/colab/python/colab/llmstep_colab_server.ipynb)
 
-2. In your local environment, set the environment variable `LLMSTEP_HOST` equal to the url printed out in this notebook (for example, `https://04fa-34-125-110-83.ngrok.io/`)
+2. In your local environment, set the environment variable `LLMSTEP_HOST` equal to the url printed out in this notebook (for example, `https://04fa-34-125-110-83.ngrok.io/`).
 
-3. In your local environment, set the environment variable `COLAB=COLAB`. If you don't intend to use colab, don't set it to anything.
+3. In your local environment, set the environment variable `LLMSTEP_SERVER=COLAB`.
 
-4. Use LLMSTEP like you usually would.
+4. Use `llmstep`.
+
+#### VS Code steps (2) and (3)
+
+To set environment variables in VS Code, go to:
+
+- Settings (`Command` + `,` on Mac)
+- Extensions -> Lean 4
+- Add the environment variables to `Server Env`. For example:\
+<img src="./docs/vscode_env1.png" width="400"/>
+
+- Then restart the Lean Server (`Command` + `t`, then type `> Lean 4: Restart Server`):\
+<img src="./docs/vscode_env2.png" width="400"/>
+
+
 
 ## Language model
 By default, `llmstep` uses a Pythia 2.8b language model fine-tuned on [LeanDojo Benchmark 4](https://zenodo.org/record/8040110):

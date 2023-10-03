@@ -6,11 +6,12 @@ import os
 import requests
 
 HOST = os.environ.get('LLMSTEP_HOST', 'localhost')
-PORT = os.environ.get('LLMSTEP_PORT', 6000)
-COLAB = os.environ.get('COLAB', '')
+PORT = os.environ.get('LLMSTEP_PORT', 5000)
+SERVER = os.environ.get('LLMSTEP_SERVER', 'DEFAULT')
 
-def suggest(tactic_state, prefix):
-    conn = http.client.HTTPConnection(HOST, port=PORT)
+
+def suggest(host, port, tactic_state, prefix):
+    conn = http.client.HTTPConnection(host, port)
     headers = {'Content-type': 'application/json'}
     body = json.dumps({"tactic_state": tactic_state, "prefix": prefix})
     conn.request("POST", "/", body, headers)
@@ -20,14 +21,15 @@ def suggest(tactic_state, prefix):
     print('[SUGGESTION]'.join(data_dict['suggestions']))
     conn.close()
 
-def suggest_colab(tactic_state, prefix):
-  data = {'tactic_state': tactic_state, 'prefix': prefix}
-  response = json.loads(requests.post(HOST, json=data).content)
-  print('[SUGGESTION]'.join(response['suggestions']))
+
+def suggest_colab(host, tactic_state, prefix):
+    data = {'tactic_state': tactic_state, 'prefix': prefix}
+    response = json.loads(requests.post(host, json=data).content)
+    print('[SUGGESTION]'.join(response['suggestions']))
 
 
 if __name__ == "__main__":
-    if COLAB:
-      suggest_colab(sys.argv[1], sys.argv[2])
+    if SERVER == 'COLAB':
+        suggest_colab(HOST, sys.argv[1], sys.argv[2])
     else:
-      suggest(sys.argv[1], sys.argv[2])
+        suggest(HOST, PORT, sys.argv[1], sys.argv[2])
