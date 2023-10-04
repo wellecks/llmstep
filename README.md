@@ -66,7 +66,7 @@ Fast suggestions are optional; you can use `python/server.py` to run `llmstep` w
 
 To use Google Colab's free GPU to run a server, follow these instructions:
 
-1. Open and run this notebook to start a server: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/wellecks/llmstep/blob/colab/python/colab/llmstep_colab_server.ipynb)
+1. Open and run this notebook to start a server: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/wellecks/llmstep/blob/master/python/colab/llmstep_colab_server.ipynb)
 
 2. In your local environment, set the environment variable `LLMSTEP_HOST` equal to the url printed out in this notebook (for example, `https://04fa-34-125-110-83.ngrok.io/`).
 
