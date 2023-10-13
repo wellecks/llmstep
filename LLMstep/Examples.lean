@@ -19,7 +19,7 @@ then choose a suggestion. Clicking the suggestion
 would yield the proof below:
 -/
 example : 2 = 2 := by
-  llmstep ""
+  rfl -- llmstep ""
 
 /-
 As shown in the rest of the examples below, we can use the
