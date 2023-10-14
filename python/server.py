@@ -116,7 +116,7 @@ if __name__ == '__main__':
   # Download and load the model (this takes a few minutes).
   model, tokenizer = load_hf(args.hf_model)
   host = os.environ.get('LLMSTEP_HOST', 'localhost')
-  port = os.environ.get('LLMSTEP_PORT', 5000)
+  port = int(os.environ.get('LLMSTEP_PORT', 5000))
 
   config = {
     'LLMSTEP_MODEL': args.hf_model,

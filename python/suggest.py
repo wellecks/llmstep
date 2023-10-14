@@ -20,6 +20,6 @@ if __name__ == "__main__":
     if SERVER == 'COLAB':
         URL = HOST
     else:
-        URL = f'http://{HOST}/{PORT}'
+        URL = f'http://{HOST}:{PORT}'
 
     suggest(URL, sys.argv[1], sys.argv[2])
