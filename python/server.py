@@ -120,6 +120,8 @@ def get_argparser():
 
 def print_config(config):
     for k, v in config.items():
+        if callable(v):
+            v = v.__name__
         print(k, v, sep='\t')
 
 if __name__ == '__main__':
