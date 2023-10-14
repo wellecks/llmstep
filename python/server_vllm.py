@@ -1,4 +1,4 @@
-from server import LLMStepServer, get_argparser, get_config
+from server import LLMStepServer, get_argparser, get_config, print_config
 
 import vllm
 import transformers
@@ -59,8 +59,10 @@ if __name__ == '__main__':
     parser = get_argparser()
     args = parser.parse_args()
 
-    model, tokenizer = load_vllm(args.hf_model)
     config = get_config(args)
+    print_config(config)
+
+    model, tokenizer = load_vllm(args.hf_model)
 
     httpd = LLMStepServer(
         model, tokenizer, vllm_generate, config

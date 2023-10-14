@@ -118,12 +118,18 @@ def get_argparser():
     return parser
 
 
+def print_config(config):
+    for k, v in config.items():
+        print(k, v, sep='\t')
+
 if __name__ == '__main__':
     parser = get_argparser()
     args = parser.parse_args()
 
-    model, tokenizer = load_hf(args.hf_model)
     config = get_config(args)
+    print_config(config)
+
+    model, tokenizer = load_hf(args.hf_model)
 
     httpd = LLMStepServer(
         model, tokenizer, hf_generate, config
