@@ -6,7 +6,7 @@ import os
 import requests
 
 HOST = os.environ.get('LLMSTEP_HOST', 'localhost')
-PORT = os.environ.get('LLMSTEP_PORT', 5000)
+PORT = os.environ.get('LLMSTEP_PORT', 6000)
 SERVER = os.environ.get('LLMSTEP_SERVER', 'DEFAULT')
 
 
@@ -20,6 +20,6 @@ if __name__ == "__main__":
     if SERVER == 'COLAB':
         URL = HOST
     else:
-        URL = f'http://{HOST}/{PORT}'
+        URL = f'http://{HOST}:{PORT}'
 
     suggest(URL, sys.argv[1], sys.argv[2])

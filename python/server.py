@@ -1,25 +1,10 @@
-from flask import Flask, request, jsonify
-
 import argparse
 import transformers
 import torch
 import os
-import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
-from pyngrok import ngrok
 
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--hf-model', type=str, default='wellecks/llmstep-mathlib4-pythia2.8b')
-parser.add_argument('--temperatures', type=float, nargs='+', default=[0.5])
-parser.add_argument('--num-samples', type=int, default=10)
-args = parser.parse_args()
-
-# Prompt template for the default model.
-# Change this if your model expects a different input format.
-def llmstep_prompt(tactic_state, prefix):
-  return '[GOAL]%s[PROOFSTEP]%s' % (tactic_state, prefix)
 
 def load_hf(hf_model):
     print("Loading model...")
@@ -66,13 +51,15 @@ def hf_generate(
 
 class LLMStepServer(HTTPServer):
     def __init__(
-        self, model, tokenizer, generate_function, config, *args, **kwargs
+        self, model, tokenizer, generate_function, config
     ):
       self.model = model
       self.tokenizer = tokenizer
       self.generate_function = generate_function
       self.config = config
-      super().__init__(*args, **kwargs)
+
+      address = (self.config['LLMSTEP_HOST'], self.config['LLMSTEP_PORT'])
+      super().__init__(address, LLMStepRequestHandler)
 
 
 class LLMStepRequestHandler(BaseHTTPRequestHandler):
@@ -90,12 +77,10 @@ class LLMStepRequestHandler(BaseHTTPRequestHandler):
         return response
 
     def do_POST(self):
-        # Set response headers
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.end_headers()
 
-        # Get the incoming POST data
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length).decode('utf-8')
 
@@ -105,37 +90,44 @@ class LLMStepRequestHandler(BaseHTTPRequestHandler):
             response = result
             self.wfile.write(json.dumps(response).encode('utf-8'))
         except Exception as e:
-            # Handle errors gracefully
             error_response = {'error': str(e)}
             self.wfile.write(json.dumps(error_response).encode('utf-8'))
 
 
+def get_config(args):
+    # Prompt template for the default model.
+    def llmstep_prompt(tactic_state, prefix):
+        return '[GOAL]%s[PROOFSTEP]%s' % (tactic_state, prefix)
+
+    config = {
+        'LLMSTEP_MODEL': args.hf_model,
+        'LLMSTEP_TEMPERATURES': args.temperatures,
+        'LLMSTEP_NUM_SAMPLES': args.num_samples,
+        'LLMSTEP_PROMPT': llmstep_prompt,
+        'LLMSTEP_HOST': os.environ.get('LLMSTEP_HOST', 'localhost'),
+        'LLMSTEP_PORT': os.environ.get('LLMSTEP_PORT', 6000),
+    }
+    return config
+
+
+def get_argparser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--hf-model', type=str, default='wellecks/llmstep-mathlib4-pythia2.8b')
+    parser.add_argument('--temperatures', type=float, nargs='+', default=[0.5])
+    parser.add_argument('--num-samples', type=int, default=10)
+    return parser
 
 
 if __name__ == '__main__':
-  # Download and load the model (this takes a few minutes).
-  model, tokenizer = load_hf(args.hf_model)
-  host = os.environ.get('LLMSTEP_HOST', 'localhost')
-  port = os.environ.get('LLMSTEP_PORT', 5000)
+    parser = get_argparser()
+    args = parser.parse_args()
 
-  config = {
-    'LLMSTEP_MODEL': args.hf_model,
+    model, tokenizer = load_hf(args.hf_model)
+    config = get_config(args)
 
-    # Sampling temperature(s)
-    'LLMSTEP_TEMPERATURES': args.temperatures,
+    httpd = LLMStepServer(
+        model, tokenizer, hf_generate, config
+    )
 
-    # Number of generated suggestions per temperature
-    'LLMSTEP_NUM_SAMPLES': args.num_samples,
-
-    # Prompt template
-    'LLMSTEP_PROMPT': llmstep_prompt
-}
-  # Create the server
-  server_address = (host, port)
-  httpd = LLMStepServer(
-    model, tokenizer, hf_generate, config,
-    server_address, LLMStepRequestHandler
-  )
-
-  print('Server started')
-  httpd.serve_forever()
+    print('Server started')
+    httpd.serve_forever()
