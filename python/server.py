@@ -9,7 +9,10 @@ import json
 def load_hf(hf_model):
     print("Loading model...")
     if 'wellecks/llmstep-mathlib4-pythia' in hf_model:
-        model = transformers.GPTNeoXForCausalLM.from_pretrained(hf_model)
+        model = transformers.GPTNeoXForCausalLM.from_pretrained(
+            hf_model,
+            torch_dtype=torch.float16
+        )
         tokenizer = transformers.GPTNeoXTokenizerFast.from_pretrained(hf_model)
     else:
         model = transformers.AutoModelForCausalLM.from_pretrained(hf_model)
