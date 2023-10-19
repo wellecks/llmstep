@@ -1,0 +1,1 @@
+{"tactic_state": "\u03b1 : Type ?u.539\nr s t : Set \u03b1\nhrs : r \u2286 s\nhst : s \u2286 t\nx : \u03b1\nhxr : x \u2208 r\n\u22a2 x \u2208 t", "prefix": "apply"}

@@ -1,0 +1,1 @@
+{"tactic_state": "f : \u2115 \u2192 \u2115\n\u22a2 Monotone f \u2192 \u2200 (n : \u2115), f n \u2264 f (n + 1)", "prefix": ""}

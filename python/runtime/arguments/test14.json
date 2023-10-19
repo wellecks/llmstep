@@ -1,0 +1,1 @@
+{"tactic_state": "case hg\nX : Type ?u.804\nY : Type ?u.807\ninst\u271d\u00b9 : MetricSpace X\ninst\u271d : MetricSpace Y\nf : X \u2192 Y\nhf : Continuous f\n\u22a2 Continuous fun b => f b.snd", "prefix": ""}

@@ -1,0 +1,1 @@
+{"tactic_state": "case a\nf : \u2115 \u2192 \u2115\nh : Monotone f\nn : \u2115\n\u22a2 n \u2264 n + 1", "prefix": "apply"}

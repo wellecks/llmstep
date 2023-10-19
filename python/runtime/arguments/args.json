@@ -1,0 +1,17 @@
+{"tactic_state": "\u22a2 2 = 2", "prefix": ""}
+{"tactic_state": "f : \u2115 \u2192 \u2115\n\u22a2 Monotone f \u2192 \u2200 (n : \u2115), f n \u2264 f (n + 1)", "prefix": ""}
+{"tactic_state": "f : \u2115 \u2192 \u2115\nh : Monotone f\nn : \u2115\n\u22a2 f n \u2264 f (n + 1)", "prefix": "apply"}
+{"tactic_state": "case a\nf : \u2115 \u2192 \u2115\nh : Monotone f\nn : \u2115\n\u22a2 n \u2264 n + 1", "prefix": "apply"}
+{"tactic_state": "f : \u2115 \u2192 \u2115\n\u22a2 Monotone f \u2192 \u2200 (n : \u2115), f n \u2264 f (n + 1)", "prefix": ""}
+{"tactic_state": "f : \u2115 \u2192 \u2115\nh : Monotone f\nn : \u2115\n\u22a2 f n \u2264 f (n + 1)", "prefix": "exact"}
+{"tactic_state": "\u03b1 : Type ?u.539\nr s t : Set \u03b1\nhrs : r \u2286 s\nhst : s \u2286 t\nx : \u03b1\nhxr : x \u2208 r\n\u22a2 x \u2208 t", "prefix": "apply"}
+{"tactic_state": "case a\n\u03b1 : Type ?u.539\nr s t : Set \u03b1\nhrs : r \u2286 s\nhst : s \u2286 t\nx : \u03b1\nhxr : x \u2208 r\n\u22a2 x \u2208 s", "prefix": "apply"}
+{"tactic_state": "\u03b1 : Type ?u.634\nr s t : Set \u03b1\nhrs : r \u2286 s\nhst : s \u2286 t\nx : \u03b1\nhxr : x \u2208 r\n\u22a2 x \u2208 t", "prefix": "have"}
+{"tactic_state": "\u03b1 : Type ?u.634\nr s t : Set \u03b1\nhrs : r \u2286 s\nhst : s \u2286 t\nx : \u03b1\nhxr : x \u2208 r\nhxs : x \u2208 s\n\u22a2 x \u2208 t", "prefix": "have"}
+{"tactic_state": "\u03b1 : Type ?u.634\nr s t : Set \u03b1\nhrs : r \u2286 s\nhst : s \u2286 t\nx : \u03b1\nhxr : x \u2208 r\nhxs : x \u2208 s\nhxt : x \u2208 t\n\u22a2 x \u2208 t", "prefix": ""}
+{"tactic_state": "X : Type ?u.804\nY : Type ?u.807\ninst\u271d\u00b9 : MetricSpace X\ninst\u271d : MetricSpace Y\nf : X \u2192 Y\nhf : Continuous f\n\u22a2 Continuous fun p => dist (f p.fst) (f p.snd)", "prefix": "apply Continuous"}
+{"tactic_state": "case hf\nX : Type ?u.804\nY : Type ?u.807\ninst\u271d\u00b9 : MetricSpace X\ninst\u271d : MetricSpace Y\nf : X \u2192 Y\nhf : Continuous f\n\u22a2 Continuous fun b => f b.fst", "prefix": ""}
+{"tactic_state": "case hg\nX : Type ?u.804\nY : Type ?u.807\ninst\u271d\u00b9 : MetricSpace X\ninst\u271d : MetricSpace Y\nf : X \u2192 Y\nhf : Continuous f\n\u22a2 Continuous fun b => f b.snd", "prefix": ""}
+{"tactic_state": "\u22a2 \u00ac\u2200 (x : \u211d), \u2203 y, y \u2260 0 \u2227 x * y = 0", "prefix": ""}
+{"tactic_state": "\u22a2 \u2203 x, \u2200 (y : \u211d), y \u2260 0 \u2192 x * y \u2260 0", "prefix": ""}
+{"tactic_state": "case h\n\u22a2 \u2200 (y : \u211d), y \u2260 0 \u2192 1 * y \u2260 0", "prefix": ""}
