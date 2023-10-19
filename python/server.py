@@ -12,7 +12,8 @@ def load_hf(hf_model):
         model = transformers.GPTNeoXForCausalLM.from_pretrained(args.hf_model)
         tokenizer = transformers.GPTNeoXTokenizerFast.from_pretrained(args.hf_model)
     else:
-        raise NotImplementedError(hf_model)
+        model = transformers.AutoModelForCausalLM.from_pretrained(args.hf_model)
+        tokenizer = transformers.AutoTokenizer.from_pretrained(args.hf_model)
 
     if torch.cuda.is_available():
         model.cuda()
@@ -94,11 +95,12 @@ class LLMStepRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(error_response).encode('utf-8'))
 
 
-def get_config(args):
-    # Prompt template for the default model.
-    def llmstep_prompt(tactic_state, prefix):
-        return '[GOAL]%s[PROOFSTEP]%s' % (tactic_state, prefix)
+# Prompt template for the default model.
+def llmstep_prompt(tactic_state, prefix):
+    return '[GOAL]%s[PROOFSTEP]%s' % (tactic_state, prefix)
 
+
+def get_config(args):
     config = {
         'LLMSTEP_MODEL': args.hf_model,
         'LLMSTEP_TEMPERATURES': args.temperatures,

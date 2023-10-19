@@ -93,29 +93,29 @@ By default, `llmstep` uses a Pythia 2.8b language model fine-tuned on [LeanDojo 
 - [`llmstep` model on Huggingface](https://huggingface.co/wellecks/llmstep-mathlib4-pythia2.8b)
 
 
-The model is fine-tuned on sequences of the form:
-```bash
-[GOAL]tactic-state[PROOFSTEP]next-tactic[END]
-```
-This format corresponds to the proofstep objective from [Han et al ICLR 2022](https://arxiv.org/abs/2102.06203).\
 The [python/train](python/train) directory shows how the model was fine-tuned.
+
+#### Reprover
+You can use the non-retrieval version of [Reprover](https://github.com/lean-dojo/ReProver) using:
+
+```
+python python/server_encdec.py
+```
+By default, this runs the `leandojo-lean4-tacgen-byt5-small` model.\
+This model is particularly useful on CPU due to its small parameter count.
 
 #### Fine-tuning your own model
 The scripts in [python/train](python/train) show how to finetune a model.
 
 #### Using a different model
-Swap in other language models with the `--hf-model` argument:
+
+Swap in other decoder-only language models with the `--hf-model` argument:
 ```bash
 python server.py --hf-model some/other-model-7B
 ```
-We recommend using a fine-tuned model, though in principle fine-tuning is not strictly needed. \
-`llmstep` assumes the model uses the proofstep format described above, but this is easy to modify.
+Use `--hf-model` with `python/server_encdec.py` for encoder-decoder models.
 
-
-#### Speed
-Starting the server downloads the default language model, and loads the model. As a result, you will likely experience a delay the first time `llmstep` is run.
-Roughly speaking, when `server.py` is run on a typical MacBook Pro, `llmstep` provides suggestions in a few seconds, with a GPU suggestions take ~1 second, and with vLLM suggestions take less than 1 second.
-Actual suggestion latency is variable and depends on multiple factors.
+The `llmstep_prompt` function in `server.py` determines the expected input and output format. If needed, you can modify this function for your model.
 
 
 ## Additional Notes
