@@ -9,11 +9,11 @@ import json
 def load_hf(hf_model):
     print("Loading model...")
     if 'wellecks/llmstep-mathlib4-pythia' in hf_model:
-        model = transformers.GPTNeoXForCausalLM.from_pretrained(args.hf_model)
-        tokenizer = transformers.GPTNeoXTokenizerFast.from_pretrained(args.hf_model)
+        model = transformers.GPTNeoXForCausalLM.from_pretrained(hf_model)
+        tokenizer = transformers.GPTNeoXTokenizerFast.from_pretrained(hf_model)
     else:
-        model = transformers.AutoModelForCausalLM.from_pretrained(args.hf_model)
-        tokenizer = transformers.AutoTokenizer.from_pretrained(args.hf_model)
+        model = transformers.AutoModelForCausalLM.from_pretrained(hf_model)
+        tokenizer = transformers.AutoTokenizer.from_pretrained(hf_model)
 
     if torch.cuda.is_available():
         model.cuda()
