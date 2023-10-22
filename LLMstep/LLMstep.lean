@@ -15,14 +15,22 @@ import Std.Data.String.Basic
 open Lean
 
 /- Calls a `suggest.py` python script with the given prefix and pretty-printed goal. -/
+def runSuggestAux (path goal pre: String) : IO (List String) := do
+  let s ← IO.Process.run { cmd := "python3", args := #[path, goal, pre] }
+  return s.splitOn "[SUGGESTION]"
+
 def runSuggest (pre goal : String) : IO (List String) := do
   let cwd ← IO.currentDir
   let path := cwd / "python" / "suggest.py"
-  unless ← path.pathExists do
-    dbg_trace f!"{path}"
-    throw <| IO.userError "could not find python script suggest.py"
-  let s ← IO.Process.run { cmd := "python3", args := #[path.toString, goal, pre] }
-  return s.splitOn "[SUGGESTION]"
+  match ← path.pathExists with
+  | true => runSuggestAux path.toString goal pre
+  | false => do
+    let path := cwd / "lake-packages" / "llmstep" / "python" / "suggest.py"
+    match ← path.pathExists with
+    | true => runSuggestAux path.toString goal pre
+    | false => do
+      dbg_trace f!"{path}"
+      throw <| IO.userError "could not find python script suggest.py"
 
 /- Display clickable suggestions in the VSCode Lean Infoview.
     When a suggestion is clicked, this widget replaces the `llmstep` call
@@ -148,4 +156,3 @@ syntax "llmstep" str: tactic
 elab_rules : tactic
   | `(tactic | llmstep%$tac $pfx:str) => do
     addSuggestions tac pfx (← liftMetaMAtMain (llmStep pfx.getString))
-
