@@ -15,19 +15,19 @@ import Std.Data.String.Basic
 open Lean
 
 /- Calls a `suggest.py` python script with the given prefix and pretty-printed goal. -/
-def runSuggestAux (path goal pre: String) : IO (List String) := do
-  let s ← IO.Process.run { cmd := "python3", args := #[path, goal, pre] }
+def runSuggestAux (path goal pre ctx: String) : IO (List String) := do
+  let s ← IO.Process.run { cmd := "python3", args := #[path, goal, pre, ctx] }
   return s.splitOn "[SUGGESTION]"
 
-def runSuggest (pre goal : String) : IO (List String) := do
+def runSuggest (pre goal ctx: String) : IO (List String) := do
   let cwd ← IO.currentDir
   let path := cwd / "python" / "suggest.py"
   match ← path.pathExists with
-  | true => runSuggestAux path.toString goal pre
+  | true => runSuggestAux path.toString goal pre ctx
   | false => do
     let path := cwd / "lake-packages" / "llmstep" / "python" / "suggest.py"
     match ← path.pathExists with
-    | true => runSuggestAux path.toString goal pre
+    | true => runSuggestAux path.toString goal pre ctx
     | false => do
       dbg_trace f!"{path}"
       throw <| IO.userError "could not find python script suggest.py"
@@ -48,7 +48,7 @@ export default function(props) {
     editorConnection.api.applyEdit({
       changes: { [props.pos.uri]: [{ range:
         props.range,
-        newText: suggestion[0] + ' -- ' + props.tactic
+        newText: suggestion[0]
         }] }
     })
   }
@@ -69,7 +69,6 @@ export default function(props) {
     props.info
   ]))
 }"
-
 
 inductive CheckResult : Type
   | ProofDone
@@ -118,12 +117,17 @@ def addSuggestions (tacRef : Syntax) (pfxRef: Syntax) (suggestions: List String)
          (column := (tacticRange.start - start).1)
       ))
 
-      let textsAndChecks := texts.zip checks |>.toArray |>.qsort
-        fun a b => compare a.2 b.2 = Ordering.lt
+      let textsAndChecks := (texts.zip checks |>.toArray |>.qsort
+        fun a b => compare a.2 b.2 = Ordering.lt).filter fun x =>
+          match x.2 with
+          | CheckResult.ProofDone => true
+          | CheckResult.Valid => true
+          | CheckResult.Invalid => false
 
       let start := (tacRef.getRange?.getD tacticRange).start
       let stop := (pfxRef.getRange?.getD argRange).stop
       let stxRange :=
+
       { start := map.lineStart (map.toPosition start).line
         stop := map.lineStart ((map.toPosition stop).line + 1) }
       let full_range : String.Range :=
@@ -141,9 +145,9 @@ def addSuggestions (tacRef : Syntax) (pfxRef: Syntax) (suggestions: List String)
 /--
 Call the LLM on a goal, asking for suggestions beginning with a prefix.
 -/
-def llmStep (pre : String) (g : MVarId) : MetaM (List String) := do
+def llmStep (pre : String) (ctx : String) (g : MVarId) : MetaM (List String) := do
   let pp := toString (← Meta.ppGoal g)
-  runSuggest pre pp
+  runSuggest pre pp ctx
 
 open Lean Elab Tactic
 
@@ -155,4 +159,11 @@ open Lean Elab Tactic
 syntax "llmstep" str: tactic
 elab_rules : tactic
   | `(tactic | llmstep%$tac $pfx:str) => do
-    addSuggestions tac pfx (← liftMetaMAtMain (llmStep pfx.getString))
+    let map ← getFileMap
+    let ctx := map.source
+    if let some range := tac.getRange? then
+      let ctx_ := ctx.extract ctx.toSubstring.startPos range.start
+      addSuggestions tac pfx (← liftMetaMAtMain (llmStep pfx.getString ctx_))
+    else
+      let ctx_ := ""
+      addSuggestions tac pfx (← liftMetaMAtMain (llmStep pfx.getString ctx_))
