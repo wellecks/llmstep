@@ -40,7 +40,7 @@ def _filter(texts, scores):
     texts_ = []
     scores_ = []
     for text, score in zip(texts, scores):
-        if text.strip() in {"", "sorry"}:
+        if text.strip() in {"", "sorry", "admit"}:
             continue
         texts_.append(text)
         scores_.append(score)
