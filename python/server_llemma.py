@@ -30,9 +30,20 @@ def _unique_sorted(texts, scores):
     texts_ = []
     scores_ = []
     for t, s in sorted(zip(texts, scores), key=lambda x: -x[1]):
-        if t not in texts_ and t.strip() != "":
+        if t not in texts_:
             texts_.append(t)
             scores_.append(s)
+    return texts_, scores_
+
+
+def _filter(texts, scores):
+    texts_ = []
+    scores_ = []
+    for text, score in zip(texts, scores):
+        if text.strip() in {"", "sorry"}:
+            continue
+        texts_.append(text)
+        scores_.append(score)
     return texts_, scores_
 
 
@@ -97,6 +108,7 @@ class LLMStepRequestHandler(BaseHTTPRequestHandler):
             texts.extend([prefix + text.strip() for text in texts_])
             scores.extend(scores_)
         texts, scores = _unique_sorted(texts, scores)
+        texts, scores = _filter(texts, scores)
 
         response = {"suggestions": texts}
         return response
