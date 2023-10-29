@@ -57,6 +57,7 @@ The table below shows the recommended language model and server commands:
 
 If your GPU does not support [vLLM](https://vllm.readthedocs.io/en/latest/), please use `python python/server.py` to start a server.
 
+`llmstep` aims to be a model-agnostic tool. We welcome contributions of new models.
 
 ## Implementation
 `llmstep` has three parts:
