@@ -64,7 +64,7 @@ The table below shows the recommended language model and server commands:
 | CPU  | `python python/server_encdec.py` | `leandojo-lean4-tacgen-byt5-small` | State | 3.16s | 22.1\%|
 | Colab GPU  | See [Colab setup](#google-colab)  | `llmstep-pythia-2.8b` |State |1.68s | 27.9\%|
 | CUDA GPU | `python python/server_vllm.py` | `llmstep-pythia-2.8b` |State|**0.25s** | **27.9\%**|
-| CUDA GPU* | `python python/server_llemma.py`* | `llemma_7b`* |State, **_current file_** 🔥 | N/A | N/A|
+| CUDA GPU | `python python/server_llemma.py` | `llemma_7b`* |State, **_current file_** 🔥 | N/A | N/A|
 
 Please refer to [our paper](https://arxiv.org/abs/2310.18457) for further information on the benchmarks.
 
