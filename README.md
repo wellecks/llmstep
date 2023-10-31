@@ -1,4 +1,11 @@
 # `llmstep`: [L]LM proofstep suggestions in Lean
+*News*
+- [10.2023] New paper describing version 1.0.0 of `llmstep`: [[paper](https://arxiv.org/abs/2310.18457)]
+- [10.2023] `llmstep` adds direct support for reprover (`leandojo-lean4-tacgen-byt5-small`)
+- [9.2023] `llmstep` adds support for free GPU servers via Google Colab
+
+---
+
 `llmstep` is a Lean 4 tactic for suggesting proof steps using a language model:
 
 <img src="./llmstep.gif" width="350"/>
@@ -24,7 +31,6 @@ example (f : ℕ → ℕ) : Monotone f → ∀ n, f n ≤ f (n + 1) := by
 ```
 
 `llmstep` checks the language model suggestions in Lean, and highlights those that are valid and/or close the proof.
-
 
 ## Using `llmstep` in a project
 1. Add `llmstep` in `lakefile.lean`:
@@ -54,6 +60,8 @@ The table below shows the recommended language model and server commands:
 | CPU  | `python python/server_encdec.py` | `leandojo-lean4-tacgen-byt5-small` | 3.16s | 22.1\%|
 | Colab GPU  | See [Colab setup](#google-colab)  | `llmstep-pythia-2.8b` | 1.68s | 27.9\%|
 | CUDA GPU | `python python/server_vllm.py` | `llmstep-pythia-2.8b` | **0.25s** | **27.9\%**|
+
+Please refer to [our paper](https://arxiv.org/abs/2310.18457) for further information.
 
 If your GPU does not support [vLLM](https://vllm.readthedocs.io/en/latest/), please use `python python/server.py` to start a server.
 
@@ -135,20 +143,17 @@ The `llmstep_prompt` function in `server.py` determines the expected input and o
 * Thank you to Mario Carneiro and Scott Morrison for reviewing the tactic implementation.
 
 #### History
-`llmstep` was initially created for an IJCAI-2023 tutorial on neural theorem proving.
+`llmstep` was initially created for an IJCAI-2023 tutorial on neural theorem proving.\
+It aims to be a model-agnostic platform for integrating language models and Lean.
 
 #### Citation
 
-If you find this repository useful in your work, please cite:
+Please cite:
 ```
-@misc{llmstep,
-  author = {Welleck, Sean and Saha, Rahul},
-  title = {llmstep: LLM proofstep suggestions in Lean},
-  year = {2023},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/wellecks/llmstep}},
+@article{welleck2023llmstep,
+    title={LLMSTEP: LLM proofstep suggestions in Lean},
+    author={Sean Welleck and Rahul Saha},
+    journal={arXiv preprint arXiv:2310.18457},
+    year={2023}
 }
 ```
-
-Naturally, please cite [LeanDojo](https://leandojo.org/), [PACT](https://arxiv.org/abs/2102.06203), and other relevant resources.
