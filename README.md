@@ -4,6 +4,7 @@
 - [10.2023] `llmstep` adds direct support for reprover (`leandojo-lean4-tacgen-byt5-small`)
 - [9.2023] `llmstep` adds support for free GPU servers via Google Colab
 
+
 ---
 
 `llmstep` is a Lean 4 tactic for suggesting proof steps using a language model:
@@ -31,6 +32,8 @@ example (f : ℕ → ℕ) : Monotone f → ∀ n, f n ≤ f (n + 1) := by
 ```
 
 `llmstep` checks the language model suggestions in Lean, and highlights those that are valid and/or close the proof.
+
+
 
 ## Using `llmstep` in a project
 1. Add `llmstep` in `lakefile.lean`:
@@ -68,6 +71,9 @@ If your GPU does not support [vLLM](https://vllm.readthedocs.io/en/latest/), ple
 `llmstep` aims to be a model-agnostic tool. We welcome contributions of new models.
 
 ## Implementation
+<img src="./docs/llmstep.png" width="700"/>
+
+
 `llmstep` has three parts:
 1. a [Lean tactic](./LLMstep/LLMstep.lean)
 2. a [language model](https://huggingface.co/wellecks/llmstep-mathlib4-pythia2.8b)
@@ -76,6 +82,8 @@ If your GPU does not support [vLLM](https://vllm.readthedocs.io/en/latest/), ple
 The Lean tactic calls a [Python script](./python/suggest.py), which sends a request to the server. \
 The server calls the language model and returns the generated suggestions. \
 The suggestions are displayed by the tactic in VS Code.
+
+
 
 ## Google Colab
 
