@@ -205,6 +205,7 @@ def get_config(args):
 
 if __name__ == '__main__':
     parser = get_argparser()
+    parser.set_defaults(hf_model='EleutherAI/llemma_7b')
     args = parser.parse_args()
 
     config = get_config(args)

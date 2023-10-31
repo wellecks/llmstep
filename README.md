@@ -1,5 +1,6 @@
 # `llmstep`: [L]LM proofstep suggestions in Lean
 *News*
+- [11.2023] Experimental support for [*Llemma*](https://arxiv.org/abs/2310.10631) suggestions that leverage the document's content
 - [10.2023] New paper describing version 1.0.0 of `llmstep`: [[paper](https://arxiv.org/abs/2310.18457)]
 - [10.2023] `llmstep` adds direct support for reprover (`leandojo-lean4-tacgen-byt5-small`)
 - [9.2023] `llmstep` adds support for free GPU servers via Google Colab
@@ -58,17 +59,22 @@ Please see the recommended servers below.
 The `llmstep` tactic communicates with a server that you can run in your own environment (e.g., CPU, GPU, Google Colab). \
 The table below shows the recommended language model and server commands:
 
-| Environment  | Command | Model | Speed | miniF2F-test |
-| -------- | ------- | ------- |------- |------- |
-| CPU  | `python python/server_encdec.py` | `leandojo-lean4-tacgen-byt5-small` | 3.16s | 22.1\%|
-| Colab GPU  | See [Colab setup](#google-colab)  | `llmstep-pythia-2.8b` | 1.68s | 27.9\%|
-| CUDA GPU | `python python/server_vllm.py` | `llmstep-pythia-2.8b` | **0.25s** | **27.9\%**|
+| Environment  | Command | Model | Context |Speed | miniF2F-test |
+| -------- | ------- | ------- |-------|------- |------- |
+| CPU  | `python python/server_encdec.py` | `leandojo-lean4-tacgen-byt5-small` | State | 3.16s | 22.1\%|
+| Colab GPU  | See [Colab setup](#google-colab)  | `llmstep-pythia-2.8b` |State |1.68s | 27.9\%|
+| CUDA GPU | `python python/server_vllm.py` | `llmstep-pythia-2.8b` |State|**0.25s** | **27.9\%**|
+| CUDA GPU* | `python python/server_llemma.py`* | `llemma_7b`* |State, **_current file_** 🔥 | N/A | N/A|
 
-Please refer to [our paper](https://arxiv.org/abs/2310.18457) for further information.
+Please refer to [our paper](https://arxiv.org/abs/2310.18457) for further information on the benchmarks.
 
 If your GPU does not support [vLLM](https://vllm.readthedocs.io/en/latest/), please use `python python/server.py` to start a server.
 
 `llmstep` aims to be a model-agnostic tool. We welcome contributions of new models.
+
+
+\*[Llemma](https://arxiv.org/abs/2310.10631) support is currently experimental.
+
 
 ## Implementation
 <img src="./docs/llmstep.png" width="700"/>
