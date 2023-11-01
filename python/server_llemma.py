@@ -13,15 +13,12 @@ import json
 
 def load_vllm(model_name):
     print("Loading model...")
-    if model_name == 'EleutherAI/llemma_7b':
-        model = vllm.LLM(
-            model=model_name,
-            tensor_parallel_size=1,
-            dtype='bfloat16'
-        )
-        tokenizer = transformers.AutoTokenizer.from_pretrained(model_name)
-    else:
-        raise NotImplementedError(model_name)
+    model = vllm.LLM(
+        model=model_name,
+        tensor_parallel_size=1,
+        dtype='bfloat16'
+    )
+    tokenizer = transformers.AutoTokenizer.from_pretrained(model_name)
     print("Done")
     return model, tokenizer
 

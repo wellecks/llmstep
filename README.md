@@ -59,12 +59,12 @@ Please see the recommended servers below.
 The `llmstep` tactic communicates with a server that you can run in your own environment (e.g., CPU, GPU, Google Colab). \
 The table below shows the recommended language model and server commands:
 
-| Environment  | Command | Model | Context |Speed | miniF2F-test |
+| Environment  | Command | Default Model | Context |Speed | miniF2F-test |
 | -------- | ------- | ------- |-------|------- |------- |
-| CPU  | `python python/server_encdec.py` | `leandojo-lean4-tacgen-byt5-small` | State | 3.16s | 22.1\%|
-| Colab GPU  | See [Colab setup](#google-colab)  | `llmstep-pythia-2.8b` |State |1.68s | 27.9\%|
-| CUDA GPU | `python python/server_vllm.py` | `llmstep-pythia-2.8b` |State|**0.25s** | **27.9\%**|
-| CUDA GPU* | `python python/server_llemma.py`* | `llemma_7b`* |State, **_current file_** 🔥 | N/A | N/A|
+| CPU  | `python python/server_encdec.py` | [LeanDojo ByT5 300m](https://huggingface.co/kaiyuy/leandojo-lean4-tacgen-byt5-small) | State | 3.16s | 22.1\%|
+| Colab GPU  | See [Colab setup](#google-colab)  | [llmstep Pythia 2.8b](https://huggingface.co/wellecks/llmstep-mathlib4-pythia2.8b) |State |1.68s | 27.9\%|
+| CUDA GPU | `python python/server_vllm.py` | [llmstep Pythia 2.8b](https://huggingface.co/wellecks/llmstep-mathlib4-pythia2.8b) |State|**0.25s** | **27.9\%**|
+| CUDA GPU* | `python python/server_llemma.py` | [Llemma 7b](https://huggingface.co/EleutherAI/llemma_7b) |State, **current file**  🔥  | N/A | N/A|
 
 Please refer to [our paper](https://arxiv.org/abs/2310.18457) for further information on the benchmarks.
 
@@ -73,7 +73,7 @@ If your GPU does not support [vLLM](https://vllm.readthedocs.io/en/latest/), ple
 `llmstep` aims to be a model-agnostic tool. We welcome contributions of new models.
 
 
-\*[Llemma](https://arxiv.org/abs/2310.10631) support is currently experimental.
+\* File context support (e.g. with [Llemma](https://arxiv.org/abs/2310.10631)) is currently experimental.
 
 
 ## Implementation
@@ -125,7 +125,7 @@ By default, `llmstep` uses a Pythia 2.8b language model fine-tuned on [LeanDojo 
 The [python/train](python/train) directory shows how the model was fine-tuned.
 
 #### Reprover
-You can use the non-retrieval version of [Reprover](https://github.com/lean-dojo/ReProver) using:
+You can use the non-retrieval version of [Reprover](https://github.com/lean-dojo/ReProver), which we refer to as [LeanDojo ByT5 300m](https://huggingface.co/kaiyuy/leandojo-lean4-tacgen-byt5-small):
 
 ```
 python python/server_encdec.py
@@ -144,7 +144,7 @@ python server.py --hf-model some/other-model-7B
 ```
 Use `--hf-model` with `python/server_encdec.py` for encoder-decoder models.
 
-The `llmstep_prompt` function in `server.py` determines the expected input and output format. If needed, you can modify this function for your model.
+Use `--hf-model` with `python/server_llemma.py` for prompted base models (e.g. CodeLlama).
 
 
 ## Additional Notes
