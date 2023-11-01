@@ -32,7 +32,7 @@ example (f : ℕ → ℕ) : Monotone f → ∀ n, f n ≤ f (n + 1) := by
   exact h (Nat.le_succ _)
 ```
 
-`llmstep` checks the language model suggestions in Lean, and highlights those that are valid and/or close the proof.
+`llmstep` checks the language model suggestions in Lean, and highlights those that close the proof.
 
 ## Quick start
 
