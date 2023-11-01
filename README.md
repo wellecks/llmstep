@@ -1,9 +1,9 @@
 # `llmstep`: [L]LM proofstep suggestions in Lean
 *News*
-- [11.2023] Experimental support for [*Llemma*](https://arxiv.org/abs/2310.10631) suggestions that leverage the document's content
+- [11.2023] Experimental [*Llemma*](https://arxiv.org/abs/2310.10631) suggestions that leverage file context
 - [10.2023] New paper describing version 1.0.0 of `llmstep`: [[paper](https://arxiv.org/abs/2310.18457)]
-- [10.2023] `llmstep` adds direct support for reprover (`leandojo-lean4-tacgen-byt5-small`)
-- [9.2023] `llmstep` adds support for free GPU servers via Google Colab
+- [10.2023] Support for [Reprover](#reprover)
+- [9.2023] Support for free GPU servers via [Google Colab](#google-colab)
 
 
 ---
@@ -133,9 +133,6 @@ python python/server_encdec.py
 By default, this runs the `leandojo-lean4-tacgen-byt5-small` model.\
 This model is particularly useful on CPU due to its small parameter count.
 
-#### Fine-tuning your own model
-The scripts in [python/train](python/train) show how to finetune a model.
-
 #### Using a different model
 
 Swap in other decoder-only language models with the `--hf-model` argument:
@@ -146,6 +143,9 @@ Use `--hf-model` with `python/server_encdec.py` for encoder-decoder models.
 
 Use `--hf-model` with `python/server_llemma.py` for prompted base models (e.g. CodeLlama).
 
+
+#### Fine-tuning a model
+The scripts in [python/train](python/train) show how to finetune a model.
 
 ## Additional Notes
 
