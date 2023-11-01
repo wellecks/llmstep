@@ -10,8 +10,8 @@ PORT = os.environ.get('LLMSTEP_PORT', 6000)
 SERVER = os.environ.get('LLMSTEP_SERVER', 'DEFAULT')
 
 
-def suggest(host, tactic_state, prefix):
-    data = {'tactic_state': tactic_state, 'prefix': prefix}
+def suggest(host, tactic_state, prefix, context):
+    data = {'tactic_state': tactic_state, 'prefix': prefix, 'context': context}
     response = json.loads(requests.post(host, json=data).content)
     print('[SUGGESTION]'.join(response['suggestions']))
 
@@ -22,4 +22,4 @@ if __name__ == "__main__":
     else:
         URL = f'http://{HOST}:{PORT}'
 
-    suggest(URL, sys.argv[1], sys.argv[2])
+    suggest(URL, sys.argv[1], sys.argv[2], sys.argv[3])

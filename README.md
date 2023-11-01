@@ -1,8 +1,9 @@
 # `llmstep`: [L]LM proofstep suggestions in Lean
 *News*
+- [11.2023] Experimental [*Llemma*](https://arxiv.org/abs/2310.10631) suggestions that leverage file context
 - [10.2023] New paper describing version 1.0.0 of `llmstep`: [[paper](https://arxiv.org/abs/2310.18457)]
-- [10.2023] `llmstep` adds direct support for reprover (`leandojo-lean4-tacgen-byt5-small`)
-- [9.2023] `llmstep` adds support for free GPU servers via Google Colab
+- [10.2023] Support for [Reprover](#reprover)
+- [9.2023] Support for free GPU servers via [Google Colab](#google-colab)
 
 
 ---
@@ -28,14 +29,23 @@ Clicking a suggestion places it in the proof:
 ```lean
 example (f : ℕ → ℕ) : Monotone f → ∀ n, f n ≤ f (n + 1) := by
   intro h n
-  exact h (Nat.le_succ _) -- llmstep "exact"
+  exact h (Nat.le_succ _)
 ```
 
 `llmstep` checks the language model suggestions in Lean, and highlights those that are valid and/or close the proof.
 
+## Quick start
 
+First, [install Lean 4 in VS Code](https://leanprover.github.io/lean4/doc/quickstart.html) and the python requirements (`pip install -r requirements.txt`).
 
-## Using `llmstep` in a project
+Then [start a server](#servers):
+```bash
+python python/server.py
+```
+
+Open `LLMstep/Examples.lean` in VS Code and try out `llmstep`.
+
+## Use `llmstep` in a project
 1. Add `llmstep` in `lakefile.lean`:
 ```lean
 require llmstep from git
@@ -52,23 +62,29 @@ import LLMstep
 ```bash
 python python/server.py
 ```
-Please see the recommended servers below.
+Please see the [recommended servers below](#servers).
 
 ## Servers
-The `llmstep` tactic communicates with a server that you can run in your own environment (e.g., CPU, GPU, Google Colab). \
-The table below shows the recommended language model and server commands:
+The `llmstep` tactic communicates with a server that you can run in your own environment (e.g., CPU, GPU, Google Colab).
 
-| Environment  | Command | Model | Speed | miniF2F-test |
-| -------- | ------- | ------- |------- |------- |
-| CPU  | `python python/server_encdec.py` | `leandojo-lean4-tacgen-byt5-small` | 3.16s | 22.1\%|
-| Colab GPU  | See [Colab setup](#google-colab)  | `llmstep-pythia-2.8b` | 1.68s | 27.9\%|
-| CUDA GPU | `python python/server_vllm.py` | `llmstep-pythia-2.8b` | **0.25s** | **27.9\%**|
+The table below shows the recommended language model and server scripts.
+To start a server, use `python {script}`, e.g. `python python/server_vllm.py`:
 
-Please refer to [our paper](https://arxiv.org/abs/2310.18457) for further information.
+| Environment  | Script | Default Model | Context |Speed | miniF2F-test |
+| -------- | ------- | ------- |-------|------- |------- |
+| CPU  | `python/server_encdec.py` | [LeanDojo ByT5 300m](https://huggingface.co/kaiyuy/leandojo-lean4-tacgen-byt5-small) | State | 3.16s | 22.1\%|
+| Colab GPU  | See [Colab setup](#google-colab)  | [llmstep Pythia 2.8b](https://huggingface.co/wellecks/llmstep-mathlib4-pythia2.8b) |State |1.68s | 27.9\%|
+| CUDA GPU | `python/server_vllm.py` | [llmstep Pythia 2.8b](https://huggingface.co/wellecks/llmstep-mathlib4-pythia2.8b) |State|**0.25s** | **27.9\%**|
+| CUDA GPU* | `python/server_llemma.py` | [Llemma 7b](https://huggingface.co/EleutherAI/llemma_7b) |State, **current file**  🔥  | N/A | N/A|
 
-If your GPU does not support [vLLM](https://vllm.readthedocs.io/en/latest/), please use `python python/server.py` to start a server.
+
+Please refer to [our paper](https://arxiv.org/abs/2310.18457) for further information on the benchmarks.
 
 `llmstep` aims to be a model-agnostic tool. We welcome contributions of new models.
+
+
+\* File context support (e.g. with [Llemma](https://arxiv.org/abs/2310.10631)) is currently experimental.
+
 
 ## Implementation
 <img src="./docs/llmstep.png" width="700"/>
@@ -79,7 +95,7 @@ If your GPU does not support [vLLM](https://vllm.readthedocs.io/en/latest/), ple
 2. a [language model](https://huggingface.co/wellecks/llmstep-mathlib4-pythia2.8b)
 3. a [Python server](./python/server.py)
 
-The Lean tactic calls a [Python script](./python/suggest.py), which sends a request to the server. \
+The Lean tactic sends a request to the server. \
 The server calls the language model and returns the generated suggestions. \
 The suggestions are displayed by the tactic in VS Code.
 
@@ -119,16 +135,13 @@ By default, `llmstep` uses a Pythia 2.8b language model fine-tuned on [LeanDojo 
 The [python/train](python/train) directory shows how the model was fine-tuned.
 
 #### Reprover
-You can use the non-retrieval version of [Reprover](https://github.com/lean-dojo/ReProver) using:
+You can use the non-retrieval version of [Reprover](https://github.com/lean-dojo/ReProver), which we refer to as [LeanDojo ByT5 300m](https://huggingface.co/kaiyuy/leandojo-lean4-tacgen-byt5-small):
 
 ```
 python python/server_encdec.py
 ```
 By default, this runs the `leandojo-lean4-tacgen-byt5-small` model.\
 This model is particularly useful on CPU due to its small parameter count.
-
-#### Fine-tuning your own model
-The scripts in [python/train](python/train) show how to finetune a model.
 
 #### Using a different model
 
@@ -138,8 +151,11 @@ python server.py --hf-model some/other-model-7B
 ```
 Use `--hf-model` with `python/server_encdec.py` for encoder-decoder models.
 
-The `llmstep_prompt` function in `server.py` determines the expected input and output format. If needed, you can modify this function for your model.
+Use `--hf-model` with `python/server_llemma.py` for prompted base models (e.g. CodeLlama).
 
+
+#### Fine-tuning a model
+The scripts in [python/train](python/train) show how to finetune a model.
 
 ## Additional Notes
 
